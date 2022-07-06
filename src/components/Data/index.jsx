@@ -121,7 +121,7 @@ const Data = () => {
   useEffect(() => {
     dataset(dataList);
     res();
-  }, [labelsZoom,dataCycles]);
+  }, []);
 
   return (
     <div className="Data">
@@ -139,7 +139,8 @@ const Data = () => {
         <button
           id="ZoomIn"
           className="Zoom__button"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setlLabelsZoom(labelsZoom + 5);
           }}
         >
@@ -149,7 +150,8 @@ const Data = () => {
         <button
           id="ZoomOut"
           className="Zoom__button"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setlLabelsZoom(labelsZoom - 5);
           }}
         >
@@ -170,7 +172,8 @@ const Data = () => {
         <button
           id="ZoomIn"
           className="Zoom__button"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setDataCycles(dataCycles + 1);
           }}
         >
@@ -180,7 +183,8 @@ const Data = () => {
         <button
           id="ZoomOut"
           className="Zoom__button"
-          onClick={() => {
+          onClick={e => { 
+            e.stopPropagation();
             setDataCycles(dataCycles - 1);
           }}
         >
