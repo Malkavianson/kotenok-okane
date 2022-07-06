@@ -1,5 +1,5 @@
 import "./index.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -35,47 +35,50 @@ const Data = () => {
     return labels;
   };
 
-  const init = async (cycle, numbers, filter) => {
-    let num = {};
-    let allGames = [];
+  const init = useCallback(
+    async (cycle, numbers, filter) => {
+      let num = {};
+      let allGames = [];
 
-    const allData = await Api.getData();
-    const splitedData = Api.splitData(allData, cycle);
-    const labels = labelsLenght(splitedData, labelsZoom);
-    setDataLabels(labels);
-    for (let data of splitedData) {
-      // console.log(data);
-      let dataLength = data.length;
-      let splicedData = Api.spliceData(data, dataLength);
-      let iteratedData = Api.iterateData(splicedData);
-      let countedData = Api.counterData(iteratedData);
-      let balancedData = Api.balanceData(countedData, dataLength);
-      let sortedData = Api.sortData(balancedData, numbers, filter);
-      // console.table(sortedData);
-      allGames.push(sortedData);
-    }
+      const allData = await Api.getData();
+      const splitedData = Api.splitData(allData, cycle);
+      const labels = labelsLenght(splitedData, labelsZoom);
+      setDataLabels(labels);
+      for (let data of splitedData) {
+        // console.log(data);
+        let dataLength = data.length;
+        let splicedData = Api.spliceData(data, dataLength);
+        let iteratedData = Api.iterateData(splicedData);
+        let countedData = Api.counterData(iteratedData);
+        let balancedData = Api.balanceData(countedData, dataLength);
+        let sortedData = Api.sortData(balancedData, numbers, filter);
+        // console.table(sortedData);
+        allGames.push(sortedData);
+      }
 
-    allGames.forEach((e) => {
-      e.forEach(([a, b, c]) => {
-        let arr = Boolean(num[a]) ? [...num[a]] : [];
-        arr.push(c);
-        num[a] = arr;
+      allGames.forEach((e) => {
+        e.forEach(([a, b, c]) => {
+          let arr = Boolean(num[a]) ? [...num[a]] : [];
+          arr.push(c);
+          num[a] = arr;
+        });
       });
-    });
-    // console.log(num);
-    return num;
-  };
+      // console.log(num);
+      return num;
+    },
+    [labelsZoom]
+  );
 
-  const res = async () => {
+  const res = useCallback(async () => {
     let filter = "ratio"; //"counts" | "ratio" | "number"
     let numbers = 25;
     let cycle = dataCycles;
     const data = await init(cycle, numbers, filter);
     // console.log(data);
     setDataList(data);
-  };
+  }, [dataCycles, init]);
 
-  const dataset = (list) => {
+  const dataset = useCallback((list) => {
     let data = [];
     Object.keys(list).forEach((e) => {
       let dataseted = {
@@ -98,7 +101,7 @@ const Data = () => {
     // console.log(data)
     // console.log(typeof data)
     return data;
-  };
+  }, []);
 
   const options = {
     responsive: true,
@@ -119,9 +122,9 @@ const Data = () => {
   };
 
   useEffect(() => {
-    dataset(dataList);
+    // dataset(dataList);
     res();
-  }, []);
+  }, [res]);
 
   return (
     <div className="Data">
