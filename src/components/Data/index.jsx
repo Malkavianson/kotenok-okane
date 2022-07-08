@@ -24,9 +24,14 @@ ChartJS.register(
 );
 const Data = () => {
   const [dataList, setDataList] = useState([]);
-  const [labelsZoom, setlLabelsZoom] = useState(25);
-  const [dataCycles, setDataCycles] = useState(20);
-  const [dataLabels, setDataLabels] = useState(["1", "2", "3", "4", "5"]);
+  const [labelsZoom, setlLabelsZoom] = useState(50);
+  const [dataCycles, setDataCycles] = useState(10);
+  const [borderLine, setBorderLine] = useState(3);
+  const [dataLabels, setDataLabels] = useState();
+  const [toCompleteCycle, setToCompleteCycle] = useState();
+  const [toCompleteCycleMedia, setToCompleteCycleMedia] = useState();
+  const [dateCycles, setDateCycles] = useState();
+
   const labelsLenght = (data, step) => {
     let labels = [];
     for (let i = 0; i < data.length; i += step) {
@@ -39,13 +44,17 @@ const Data = () => {
     async (cycle, numbers, filter) => {
       let num = {};
       let allGames = [];
-
       const allData = await Api.getData();
+
+      const gettedCycle = Api.getCycle(allData);
+      setToCompleteCycle(gettedCycle[0]);
+      setToCompleteCycleMedia(gettedCycle[1]);
+      setDateCycles(gettedCycle[2]);
+
       const splitedData = Api.splitData(allData, cycle);
       const labels = labelsLenght(splitedData, labelsZoom);
       setDataLabels(labels);
       for (let data of splitedData) {
-        // console.log(data);
         let dataLength = data.length;
         let splicedData = Api.spliceData(data, dataLength);
         let iteratedData = Api.iterateData(splicedData);
@@ -53,6 +62,7 @@ const Data = () => {
         let balancedData = Api.balanceData(countedData, dataLength);
         let sortedData = Api.sortData(balancedData, numbers, filter);
         // console.table(sortedData);
+        // console.log(data);
         allGames.push(sortedData);
       }
 
@@ -78,30 +88,36 @@ const Data = () => {
     setDataList(data);
   }, [dataCycles, init]);
 
-  const dataset = useCallback((list) => {
-    let data = [];
-    Object.keys(list).forEach((e) => {
-      let dataseted = {
-        id: e,
-        label: e,
-        data: list[e],
-        borderWidth: 2,
-        borderColor: [
-          `rgb(${
-            Math.round(Math.random() * 200) + e * Math.round(Math.random() * 5)
-          },${
-            Math.round(Math.random() * 200) + e * Math.round(Math.random() * 5)
-          },${
-            Math.round(Math.random() * 200) + e * Math.round(Math.random() * 5)
-          })`,
-        ],
-      };
-      data.push(dataseted);
-    });
-    // console.log(data)
-    // console.log(typeof data)
-    return data;
-  }, []);
+  const dataset = useCallback(
+    (list) => {
+      let data = [];
+      Object.keys(list).forEach((e) => {
+        let dataseted = {
+          id: e,
+          label: e,
+          data: list[e],
+          borderWidth: borderLine,
+          borderColor: [
+            `rgb(${
+              Math.round(Math.random() * 200) +
+              e * Math.round(Math.random() * 5)
+            },${
+              Math.round(Math.random() * 200) +
+              e * Math.round(Math.random() * 5)
+            },${
+              Math.round(Math.random() * 200) +
+              e * Math.round(Math.random() * 5)
+            })`,
+          ],
+        };
+        data.push(dataseted);
+      });
+      // console.log(data)
+      // console.log(typeof data)
+      return data;
+    },
+    [borderLine]
+  );
 
   const options = {
     responsive: true,
@@ -124,7 +140,7 @@ const Data = () => {
   useEffect(() => {
     // dataset(dataList);
     res();
-  }, [res]);
+  }, [res, dataCycles, borderLine, labelsZoom]);
 
   return (
     <div className="Data">
@@ -137,14 +153,14 @@ const Data = () => {
       />
       <div>
         <span className="title" id="zoom__title">
-          Zoom
+          Zoom:
         </span>
         <button
           id="ZoomIn"
           className="Zoom__button"
           onClick={(e) => {
             e.stopPropagation();
-            setlLabelsZoom(labelsZoom + 5);
+            setlLabelsZoom(labelsZoom + 10);
           }}
         >
           +
@@ -155,7 +171,7 @@ const Data = () => {
           className="Zoom__button"
           onClick={(e) => {
             e.stopPropagation();
-            setlLabelsZoom(labelsZoom - 5);
+            setlLabelsZoom(labelsZoom - 10);
           }}
         >
           -
@@ -165,12 +181,12 @@ const Data = () => {
           className="Zoom__button"
           id="inputZoom"
           onChange={(e) => setlLabelsZoom(e.target.value)}
-          value={labelsZoom}
+          value={Number(labelsZoom)}
         />
       </div>
       <div>
         <span className="title" id="zoom__title">
-          Ciclos
+          Ciclos:
         </span>
         <button
           id="ZoomIn"
@@ -186,7 +202,7 @@ const Data = () => {
         <button
           id="ZoomOut"
           className="Zoom__button"
-          onClick={e => { 
+          onClick={(e) => {
             e.stopPropagation();
             setDataCycles(dataCycles - 1);
           }}
@@ -198,8 +214,39 @@ const Data = () => {
           className="Zoom__button"
           id="inputCycles"
           onChange={(e) => setDataCycles(e.target.value)}
-          value={dataCycles}
+          value={Number(dataCycles)}
         />
+      </div>
+      <div>
+        <span className="title" id="zoom__title">
+          Borderline:
+        </span>
+        <button
+          id="borderLineWidth"
+          className="Zoom__button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setBorderLine(borderLine + 1);
+          }}
+        >
+          +
+        </button>
+        <span className="Zoom__button">{borderLine}</span>
+        <button
+          id="ZoomOut"
+          className="Zoom__button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setBorderLine(borderLine - 1);
+          }}
+        >
+          -
+        </button>
+      </div>
+      <div id="last__cycle">
+        <p>Falta para completar o ciclo: {toCompleteCycle}</p>
+        <p>Media de sorteios para completar um ciclo: {toCompleteCycleMedia}</p>
+        <p>Quantidade de sorteios desde o último ciclo: {dateCycles}</p>
       </div>
     </div>
   );

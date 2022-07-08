@@ -107,9 +107,88 @@ const Api = {
 
         // console.log("newData")
         // console.log(typeof newData)
-        // console.log(newData)
+        // console.table(newData)
         return newData;
     },
+    getCycle: (data) => {
+        const nLoto = [
+            "01",
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "24",
+            "25",
+        ];
+        const newData = data.reverse();
+        const complete = [0];
+        let toComplete = [];
+        let aComplete = [];
+        let lastPlayC = 0;
+        let lastPlay = 0;
+        let bool = true;
+        const arr = [];
+        let calc = 0;
+        let media;
+        let soma;
+
+        for (let d of newData) {
+            for (let i = 0; i < d.dezenas.length; i++) {
+                let e = d.dezenas[i];
+                if (!aComplete.includes(e) && bool === true) {
+                    aComplete.push(e);
+                }
+                if (aComplete.length === 25) {
+                    complete.push(d.concurso);
+                    aComplete = [];
+                    bool = false;
+                    lastPlayC = d.concurso;
+                }
+            }
+            bool = true;
+            lastPlay = d.concurso;
+        }
+
+        for (let i = 0; i < complete.length - 1; i++) {
+            calc = complete[i + 1] - complete[i];
+            arr.push(calc);
+        }
+
+        soma = arr.reduce((soma, i) => {
+            return soma + i;
+        });
+
+        media = Math.round(soma / arr.length);
+
+        nLoto.forEach((e) => {
+            if (!aComplete.includes(e)) {
+                toComplete.push(e);
+            }
+        });
+        const a = toComplete.sort();
+        const b = lastPlay - lastPlayC;
+        return [a, media, b]
+    },
+
+
 
     // const test: (data) => {
     // let arr = [...data].reverse();
